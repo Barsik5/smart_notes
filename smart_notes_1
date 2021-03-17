@@ -1,0 +1,56 @@
+#начни тут создавать приложение с умными заметками
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+app = QApplication([])
+window = QWidget()
+#window.resize(600,400)
+window.setWindowTitle('Умные заметки')
+
+v_layout1 = QVBoxLayout()
+v_layout2 = QVBoxLayout()
+
+h_layout1 = QHBoxLayout()
+h_layout2 = QHBoxLayout()
+general_line = QHBoxLayout()
+
+label1 = QLabel('Список заметок')
+label2 = QLabel('Список тегов')
+
+button1 = QPushButton('Создать заметку')
+button2 = QPushButton('Удалить заметку')
+button4 = QPushButton('Сохранить заметку')
+button3 = QPushButton('Добавить к заметке')
+button5 = QPushButton('Открепить от заметки')
+button6 = QPushButton('Искать заметки по тегу')
+
+field_text = QTextEdit()
+field_teg1 = QLineEdit()
+
+list_text = QListWidget()
+list_tags = QListWidget()
+
+v_layout1.addWidget(field_text,alignment = Qt.AlignCenter)
+
+v_layout2.addWidget(label1,alignment = Qt.AlignCenter)
+v_layout2.addWidget(list_text,alignment = Qt.AlignCenter)
+
+h_layout1.addWidget(button1,alignment = Qt.AlignCenter)
+h_layout1.addWidget(button2,alignment = Qt.AlignCenter)
+v_layout2.addLayout(h_layout1)
+v_layout2.addWidget(button3)
+v_layout2.addWidget(label2)
+v_layout2.addWidget(list_tags)
+v_layout2.addWidget(field_teg1)
+h_layout2.addWidget(button4)
+h_layout2.addWidget(button5)
+v_layout2.addLayout(h_layout2)
+v_layout2.addWidget(button6)
+general_line.addLayout(v_layout1)
+general_line.addLayout(v_layout2)
+
+window.setLayout(general_line)
+
+
+
+window.show()
+app.exec_()
