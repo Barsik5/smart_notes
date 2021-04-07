@@ -1,0 +1,162 @@
+#начни тут создавать приложение с умными заметками
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+import json
+app = QApplication([])
+window = QWidget()
+#window.resize(600,400)
+window.setWindowTitle('Умные заметки')
+
+v_layout1 = QVBoxLayout()
+v_layout2 = QVBoxLayout()
+
+h_layout1 = QHBoxLayout()
+h_layout2 = QHBoxLayout()
+general_line = QHBoxLayout()
+
+label1 = QLabel('Список заметок')
+label2 = QLabel('Список тегов')
+
+button1 = QPushButton('Создать заметку')
+button2 = QPushButton('Удалить заметку')
+button4 = QPushButton('Сохранить заметку')
+button3 = QPushButton('Добавить к заметке')
+button5 = QPushButton('Открепить от заметки')
+button6 = QPushButton('Искать заметки по тегу')
+
+field_text = QTextEdit()
+field_teg1 = QLineEdit()
+
+list_text = QListWidget()
+list_tags = QListWidget()
+
+v_layout1.addWidget(field_text,alignment = Qt.AlignCenter)
+
+v_layout2.addWidget(label1,alignment = Qt.AlignCenter)
+v_layout2.addWidget(list_text,alignment = Qt.AlignCenter)
+
+h_layout1.addWidget(button1,alignment = Qt.AlignCenter)
+h_layout1.addWidget(button2,alignment = Qt.AlignCenter)
+v_layout2.addLayout(h_layout1)
+v_layout2.addWidget(button4)
+v_layout2.addWidget(label2)
+v_layout2.addWidget(list_tags)
+v_layout2.addWidget(field_teg1)
+h_layout2.addWidget(button3)
+h_layout2.addWidget(button5)
+v_layout2.addLayout(h_layout2)
+v_layout2.addWidget(button6)
+general_line.addLayout(v_layout1)
+general_line.addLayout(v_layout2)
+
+window.setLayout(general_line)
+
+
+def show_notes():
+    key = list_text.selectedItems()[0].text()
+    print(key)
+    field_text.setText(notes[key]["Текст"])
+    list_tags.clear()
+    list_tags.addItems(notes[key]["Теги"])
+
+def add_note():
+    note_name, ok = QInputDialog.getText(
+        window, 'Добавить заметку', 'Название заметки:'
+    )    
+    if ok and note_name != '':
+        notes[note_name]={"Текст": "", "Теги":[]}
+        list_text.addItem(note_name)
+        list_tags.addItems(notes[note_name]["Теги"])
+
+
+def save_note():
+    if list_text.selectedItems():
+        key = list_text.selectedItems()[0].text()
+        notes[key]["Текст"]=field_text.toPlainText()
+        with open("notes_data.json", "w") as file:
+            json.dump(notes, file,sort_keys=True,ensure_ascii=False)
+        print(notes)
+    else:
+        print("Заметка для сохранения не выбрана")
+
+
+def add_tag():
+    if list_text.selectedItems():
+        key = list_text.selectedItems()[0].text()
+        tag = field_teg1.text()
+        if not tag in notes[key]['Теги']:
+            notes[key]['Теги'].append(tag)
+            list_tags.addItem(tag)
+            field_teg1.clear()
+        with open("notes_data.json", 'w') as file:
+            json.dump(notes, file, sort_keys=True, ensure_ascii=False)
+        print(notes)
+    else:
+        print("Заметка для добавления тега не выбрана!")
+
+def del_tag():
+    if list_tags.selectedItems():
+        key=list_text.selectedItems()[0].text()
+        tag = list_tags.selectedItems()[0].text()
+        notes[key]['Теги'].remove(tag)
+        list_tags.clear()
+        list_tags.addItems(notes[key]["Теги"])
+        with open('notes_data.json','w')as file:
+            json.dump(notes,file,sort_keys=True, ensure_ascii=False)
+    else:
+        print("Тег для удаления не выбран!")
+
+def search_tag():
+    print(button6.text())
+    tag = field_teg1.text()
+    if button6.text() == 'Искать заметки по тегу' and tag:
+        print(tag)
+        notes_filtered= {}
+        for note in notes:
+            if tag in notes[note]['Теги']:
+                notes_filtered[note]=notes[note]
+        button6.setText('Сбросить поиск')
+        list_text.clear()
+        list_tags.clear()
+        list_text.addItems(notes_filtered)
+        print(button6.text())
+    elif  button6.text() == 'Сбросить поиск':
+        field_teg1.clear()
+        list_text.clear()
+        list_tags.clear()
+        list_text.addItems(notes)
+        button6.setText('Искать заметки по тегу')
+        print(button_tag_seardch.text())
+    else:
+        pass
+
+def del_note():
+    if list_text.selectedItems():
+        key= list_text.selectedItems()[0].text()
+        del notes[key]
+        list_text.clear()
+        list_tags.clear()
+        field_text.clear()
+        list_text.addItems(notes)
+        with open('notes_data.json','w') as file:
+            json.dump(notes,file,sort_keys=True, ensure_ascii=False)
+        print(notes)
+    else:
+        print("Заметка для удаления не выбрана")
+
+button1.clicked.connect(add_note)
+list_text.itemClicked.connect(show_notes)
+button4.clicked.connect(save_note)
+button2.clicked.connect(del_note)
+button3.clicked.connect(add_tag)
+button5.clicked.connect(del_tag)
+button6.clicked.connect(search_tag)
+
+window.show()
+
+
+with open("notes_data.json", "r") as file:
+    notes= json.load(file)
+
+list_text.addItems(notes)
+app.exec_()
